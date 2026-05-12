@@ -1,3 +1,5 @@
+Actua como un administrador de base de datos: proyecto Similares, que entidades se necesitan para su gestion
+
 Perfecto. Aquí está el modelo de entidades para el sistema de gestión de **Farmacias Similares**:Aquí tienes el modelo de entidades completo. A continuación el resumen por módulo:
 
 <img width="779" height="601" alt="image" src="https://github.com/user-attachments/assets/70a1773d-cd86-4a3d-95fe-124e8765ac93" />
