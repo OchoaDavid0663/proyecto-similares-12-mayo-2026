@@ -3,6 +3,33 @@ desarrollo, detallado las reglas de negocio específicas de la franquicia y
 estructurado las tablas de base de datos con un nivel de detalle técnico
 superior.
 
+```
+lib/
+├── core/
+│   ├── constants/             # AppColors, AppStrings, AssetsPath
+│   ├── theme/                 # SimiTheme (Configuración Material 3)
+│   ├── utils/                 # Formateadores (MXN, fechas) y validadores
+│   └── network/               # Configuración inicial de Firebase
+├── data/                      # CAPA DE DATOS (Implementación)
+│   ├── models/                # DTOs (MedicamentoModel, VentaModel, etc.)
+│   │   └── mappers/           # Conversores Entity <-> Model
+│   ├── repositories_impl/     # Implementación real de Firestore
+│   └── sources/               # RemoteDataSource (Llamadas a Firebase SDK)
+├── domain/                    # CAPA DE NEGOCIO (Reglas puras)
+│   ├── entities/              # Clases puras (Medicamento, Cliente)
+│   ├── repositories/          # Interfaces (Contratos)
+│   └── usecases/              # Lógica: (RealizarVenta, CalcularPuntos)
+├── presentation/              # CAPA DE INTERFAZ (UI)
+│   ├── providers/             # Estado global (CartProvider, AuthProvider)
+│   ├── screens/               # Vistas por módulo:
+│   │   ├── auth/              # Login y Registro
+│   │   ├── pos/               # Punto de Venta (Caja)
+│   │   ├── inventory/         # Medicamentos y Souvenirs
+│   │   └── staff/             # Gestión de Empleados y Proveedores
+│   └── widgets/               # SimiButton, SimiTextField, ProductCard
+└── main.dart                  # Punto de entrada y Firebase setup
+```
+
 Este documento está listo para ser pegado en un README.md de GitHub o entregado
 a una IA de alto nivel para generar el código.
 
@@ -40,30 +67,7 @@ Principios de Diseño:
 Se implementa Clean Architecture para separar las preocupaciones y facilitar el
 testing unitario.
 
-lib/
-├── core/                         # Núcleo del Sistema
-│   ├── constants/                # AppColors, AppStrings, AssetsPath
-│   ├── theme/                    # SimiThemeData (Light/Dark)
-│   ├── utils/                    # MoneyFormatter, DateHelper, Validators
-│   └── network/                  # FirebaseServiceConfig
-├── data/                         # Capa de Infraestructura
-│   ├── models/                   # DTOs (MedicamentoModel, VentaModel)
-│   │   └── mappers/              # Conversores Entity <-> Model
-│   ├── repositories_impl/        # Implementación real de Firestore
-│   └── sources/                  # RemoteDataSource (Firebase SDK calls)
-├── domain/                       # Capa de Lógica Pura
-│   ├── entities/                 # Objetos de negocio (Medicamento, Empleado)
-│   ├── repositories/             # Interfaces de los repositorios
-│   └── usecases/                 # Casos de uso: (ApplySimiDiscount, ProcessPayment)
-├── presentation/                 # Capa de Interfaz
-│   ├── providers/                # Estado Global (CartProvider, AuthProvider)
-│   ├── screens/                  # Vistas por módulo
-│   │   ├── auth/                 # Login corporativo
-│   │   ├── pos/                  # Point of Sale (Caja)
-│   │   ├── inventory/            # Gestión de stock y caducidad
-│   │   └── dashboard/            # KPIs y métricas de venta
-│   └── widgets/                  # SimiButton, SimiTextField, ProductCard
-└── main.dart                     # Punto de entrada y Dependency Injection
+
 
 🗄️ 3. Arquitectura de Datos (Cloud Firestore)
 
@@ -194,3 +198,4 @@ Fase 5: Testing y Pulido
 VentaRepositoryImpl con soporte para transacciones atómicas de stock y la
 pantalla de POSScreen que implemente la paleta de colores Verde y Azul
 institucional, incluyendo la lógica del 'Lunes de Descuento'."
+
