@@ -114,6 +114,136 @@ C. Colección: clientes (Fidelización)
 Añadir estas líneas al archivo pubspec.yaml:
 
 dependencies:
+
+
+🗃️ ESQUEMA DE BASE DE DATOS (COLECCIONES FIRESTORE):
+Firestore es NoSQL. Usa referencias documentales (`DocumentReference`) o strings de ID para relaciones. Genera las siguientes tablas en formato Markdown. Para cada colección, especifica: Campo, Tipo, PK/Índice, Relación, Restricción/Nota.
+
+| Colección | Campo | Tipo | PK/Índice | Relación | Restricción / Nota |
+|---|---|---|---|---|---|
+| `empleados` | `uid` | String | PK | - | Vinculado a Firebase Auth |
+| `empleados` | `nombre` | String | Índice texto | - | Requerido |
+| `empleados` | `email` | String | Índice único | - | Formato email válido |
+| `empleados` | `rol` | String | Índice | - | `admin`, `farmacia`, `cajero` |
+| `empleados` | `telefono` | String | - | - | Máscara +52 |
+| `empleados` | `activo` | Bool | Índice | - | `false` bloquea acceso |
+| `empleados` | `created_at` | Timestamp | - | - | Automático |
+| `clientes` | `id` | String | PK | - | UUID v4 |
+| `clientes` | `nombre` | String | Índice texto | - | Requerido |
+| `clientes` | `email` | String | - | - | Opcional |
+| `clientes` | `telefono` | String | Índice | - | Búsqueda principal |
+| `clientes` | `rfc` | String | - | - | 12-13 caracteres |
+| `clientes` | `direccion` | String | - | - | Texto libre |
+| `clientes` | `puntos` | Int | - | - | Programa fidelidad |
+| `clientes` | `activo` | Bool | Índice | - | `true` por defecto |
+| `clientes` | `created_at` | Timestamp | - | - | Automático |
+| `proveedores` | `id` | String | PK | - | UUID v4 |
+| `proveedores` | `razon_social` | String | Índice | - | Requerido |
+| `proveedores` | `contacto` | String | - | - | Persona física |
+| `proveedores` | `email` | String | - | - | Validado |
+| `proveedores` | `telefono` | String | Índice | - | Requerido |
+| `proveedores` | `rfc` | String | Índice único | - | Fiscal |
+| `proveedores` | `activo` | Bool | Índice | - | Control de compras |
+| `medicamentos` | `id` | String | PK | - | UUID v4 |
+| `medicamentos` | `nombre` | String | Índice texto | - | Comercial/Genérico |
+| `medicamentos` | `codigo_barras` | String | Índice único | - | EAN13/UPC |
+| `medicamentos` | `categoria_id` | String | Índice | 1:N `categorias` | Clasificación |
+| `medicamentos` | `precio_compra` | Double | - | - | >= 0 |
+| `medicamentos` | `precio_venta` | Double | - | - | > precio_compra |
+| `medicamentos` | `stock` | Int | - | - | >= 0 |
+| `medicamentos` | `stock_min` | Int | - | - | Alerta automática |
+| `medicamentos` | `proveedor_id` | String | Índice | 1:N `proveedores` | Origen |
+| `medicamentos` | `requiere_receta` | Bool | - | - | Control sanitario |
+| `medicamentos` | `vencimiento` | Timestamp | Índice | - | Alerta si < 30 días |
+| `medicamentos` | `activo` | Bool | Índice | - | Baja lógica |
+| `productos_souvenirs` | `id` | String | PK | - | UUID v4 |
+| `productos_souvenirs` | `nombre` | String | Índice texto | - | Requerido |
+| `productos_souvenirs` | `codigo_barras` | String | Índice único | - | EAN13/UPC |
+| `productos_souvenirs` | `categoria_id` | String | Índice | 1:N `categorias` | Clasificación |
+| `productos_souvenirs` | `precio_compra` | Double | - | - | >= 0 |
+| `productos_souvenirs` | `precio_venta` | Double | - | - | > precio_compra |
+| `productos_souvenirs` | `stock` | Int | - | - | >= 0 |
+| `productos_souvenirs` | `stock_min` | Int | - | - | Alerta automática |
+| `productos_souvenirs` | `proveedor_id` | String | Índice | 1:N `proveedores` | Origen |
+| `productos_souvenirs` | `activo` | Bool | Índice | - | Baja lógica |
+| `ventas` | `id` | String | PK | - | UUID v4 o folio autoincremental |
+| `ventas` | `cliente_id` | String | Índice | 1:N `clientes` | Nullable para venta anónima |
+| `ventas` | `empleado_id` | String | Índice | 1:N `empleados` | Cajero/Farmacéutico |
+| `ventas` | `fecha` | Timestamp | Índice | - | Zona horaria local |
+| `ventas` | `subtotal` | Double | - | - | Suma items |
+| `ventas` | `iva` | Double | - | - | 16% fijo |
+| `ventas` | `total` | Double | - | - | subtotal + iva |
+| `ventas` | `metodo_pago` | String | Índice | - | `efectivo`, `tarjeta`, `transferencia` |
+| `ventas` | `estado` | String | Índice | - | `completada`, `cancelada`, `pendiente` |
+| `ventas` | `items` | Array<Map> | - | - | `{item_id, tipo, cantidad, precio_unit, subtotal}` |
+| `ventas` | `created_at` | Timestamp | - | - | Inmutable |
+| `inventario_movimientos` | `id` | String | PK | - | UUID v4 |
+| `inventario_movimientos` | `producto_id` | String | Índice | - | Medicamento o Souvenir |
+| `inventario_movimientos` | `tipo` | String | Índice | - | `entrada`, `salida`, `ajuste`, `merma` |
+| `inventario_movimientos` | `cantidad` | Int | - | - | Positivo o negativo |
+| `inventario_movimientos` | `motivo` | String | - | - | Texto libre |
+| `inventario_movimientos` | `empleado_id` | String | Índice | 1:N `empleados` | Responsable |
+| `inventario_movimientos` | `fecha` | Timestamp | Índice | - | Timestamp |
+| `alertas_stock` | `id` | String | PK | - | UUID v4 |
+| `alertas_stock` | `producto_id` | String | Índice | - | Referencia |
+| `alertas_stock` | `tipo_producto` | String | Índice | - | `medicamento` o `souvenir` |
+| `alertas_stock` | `umbral` | Int | - | - | `stock_min` original |
+| `alertas_stock` | `stock_actual` | Int | - | - | Captura al momento |
+| `alertas_stock` | `leido` | Bool | Índice | - | `false` por defecto |
+| `alertas_stock` | `created_at` | Timestamp | - | - | Automático |
+| `categorias` | `id` | String | PK | - | UUID v4 |
+| `categorias` | `nombre` | String | Índice único | - | Ej: `Analgésicos`, `Juguetes` |
+| `categorias` | `tipo` | String | Índice | - | `medicamento` o `souvenir` |
+| `categorias` | `activo` | Bool | Índice | - | `true` |
+| `configuracion_tienda` | `id` | String | PK (único doc) | - | `global_config` |
+| `configuracion_tienda` | `nombre_sucursal` | String | - | - | Identificador |
+| `configuracion_tienda` | `rfc` | String | - | - | Fiscal |
+| `configuracion_tienda` | `iva_porcentaje` | Double | - | - | `0.16` |
+| `configuracion_tienda` | `logo_url` | String | - | - | Firebase Storage |
+| `configuracion_tienda` | `updated_at` | Timestamp | - | - | Última modificación |
+
+🎨 IDENTIDAD VISUAL & UI (FARMACIAS SIMILARES):
+- Primary: `#009640` (Verde institucional)
+- Secondary/Acento: `#FFD100` (Amarillo/Dorado)
+- Background: `#F8F9FA` | Surface: `#FFFFFF`
+- Text/OnPrimary: `#1A1A1A` | Error: `#E53935` | Success: `#4CAF50`
+- Implementar Material 3: `ColorScheme.fromSeed(seedColor: Color(0xFF009640))`
+- Overrides: AppBar verde sólido, botones primarios verdes, secundarios amarillos, cards con `elevation: 2`, badges de alerta en rojo/amarillo, inputs con `border: OutlineInputBorder`
+- Tipografía: `GoogleFonts.inter()` (fallback `Roboto`), jerarquía clara H1→Caption
+- Responsive: `LayoutBuilder` + `MediaQuery`, breakpoints: mobile ≤600, tablet 601-840, desktop ≥841
+- Componentes obligatorios: `PrimaryButton`, `SecondaryButton`, `CustomTextField`, `DataTablePaginated`, `StatusBadge`, `EmptyStateWidget`, `LoadingOverlay`, `SnackbarManager`
+
+📦 DEPENDENCIAS (`pubspec.yaml`):
+Entrega el bloque exacto. Usa versiones compatibles con Flutter 3.16+.
+```yaml
+dependencies:
+  flutter:
+    sdk: flutter
+  firebase_core: ^2.24.0
+  cloud_firestore: ^4.14.0
+  firebase_auth: ^4.16.0
+  firebase_storage: ^11.6.0
+  provider: ^6.1.1
+  go_router: ^13.2.0
+  flutter_form_builder: ^9.1.1
+  form_builder_validators: ^9.1.0
+  intl: ^0.19.0
+  mobile_scanner: ^4.0.0
+  pdf: ^3.10.8
+  printing: ^5.12.0
+  uuid: ^4.2.2
+  cached_network_image: ^3.3.1
+  shared_preferences: ^2.2.2
+  flutter_svg: ^2.0.9
+  google_fonts: ^6.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+  mockito: ^5.4.4
+  build_runner: ^2.4.8
+
   # Firebase Core
   firebase_core: ^2.24.2
   cloud_firestore: ^4.14.0
@@ -133,6 +263,7 @@ dependencies:
   intl: ^0.18.1 # Formateo de moneda y fechas
   uuid: ^4.2.2 # Generación de folios
   cached_network_image: ^3.3.0 # Imágenes de souvenirs
+```
 
 🛠️ 5. Guía de Desarrollo Paso a Paso (Roadmap Extenso)
 
