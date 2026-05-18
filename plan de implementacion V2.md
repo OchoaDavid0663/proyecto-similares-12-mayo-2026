@@ -1,332 +1,270 @@
-Este es el Prompt Maestro Final Ultra-Extendido. He expandido cada fase del
-desarrollo, detallado las reglas de negocio específicas de la franquicia y
-estructurado las tablas de base de datos con un nivel de detalle técnico
-superior.
+¡Claro que sí! Aquí tienes el Prompt Maestro Definitivo. He consolidado todo lo
+que hemos trabajado: la arquitectura, el diseño institucional, la lógica de
+negocio de Farmacias Similares y la configuración técnica de Firebase.
 
+Este documento está diseñado para que lo guardes como tu "Biblia del Proyecto" o
+lo pegues en una IA para regenerar el código base.
+
+🚀 PROMPT MAESTRO: SIMIAPP PRO - SISTEMA DE GESTIÓN DE FARMACIA
+
+Rol: Actúa como un Arquitecto de Software Senior y Desarrollador Fullstack
+experto en Flutter y Firebase. Objetivo: Desarrollar una aplicación profesional
+para la gestión de sucursales de "Farmacias Similares", con conexión a Firebase
+(Auth y Firestore), arquitectura escalable y una interfaz vibrante basada en la
+identidad de la marca.
+
+🎨 1. IDENTIDAD VISUAL Y UI (BRANDING)
+
+La aplicación debe ser visualmente impactante y profesional.
+
+| Elemento               | Código HEX | Aplicación en la App                                           |
+| :--------------------- | :--------- | :------------------------------------------------------------- |
+| **Verde Primario**     | `#009640`  | AppBars, botones de éxito, headers y botones de "Registrarme". |
+| **Azul Institucional** | `#00468C`  | Iconografía médica, botones de navegación, textos de títulos.  |
+| **Amarillo Simi**      | `#FFD100`  | Alertas de stock bajo, banners de "Lunes de Descuento".        |
+| **Fondo**              | `#F8F9FA`  | Color base de la aplicación para limpieza visual.              |
+| **Blanco**             | `#FFFFFF`  | Tarjetas (Cards) y campos de entrada de texto.                 |
+
+📂 2. ESTRUCTURA DE CARPETAS (CLEAN ARCHITECTURE)
+
+El proyecto se organiza en capas para permitir el mantenimiento a largo plazo:
 ```
 lib/
 ├── core/
-│   ├── constants/             # AppColors, AppStrings, AssetsPath
-│   ├── theme/                 # SimiTheme (Configuración Material 3)
-│   ├── utils/                 # Formateadores (MXN, fechas) y validadores
-│   └── network/               # Configuración inicial de Firebase
-├── data/                      # CAPA DE DATOS (Implementación)
-│   ├── models/                # DTOs (MedicamentoModel, VentaModel, etc.)
-│   │   └── mappers/           # Conversores Entity <-> Model
-│   ├── repositories_impl/     # Implementación real de Firestore
-│   └── sources/               # RemoteDataSource (Llamadas a Firebase SDK)
-├── domain/                    # CAPA DE NEGOCIO (Reglas puras)
-│   ├── entities/              # Clases puras (Medicamento, Cliente)
-│   ├── repositories/          # Interfaces (Contratos)
-│   └── usecases/              # Lógica: (RealizarVenta, CalcularPuntos)
-├── presentation/              # CAPA DE INTERFAZ (UI)
-│   ├── providers/             # Estado global (CartProvider, AuthProvider)
-│   ├── screens/               # Vistas por módulo:
-│   │   ├── auth/              # Login y Registro
-│   │   ├── pos/               # Punto de Venta (Caja)
-│   │   ├── inventory/         # Medicamentos y Souvenirs
-│   │   └── staff/             # Gestión de Empleados y Proveedores
-│   └── widgets/               # SimiButton, SimiTextField, ProductCard
-└── main.dart                  # Punto de entrada y Firebase setup
+│   ├── constants/             # Rutas de imágenes y textos fijos
+│   ├── theme/                 # AppColors y configuración de ThemeData
+│   └── utils/                 # Formateadores de moneda y validadores
+├── data/                      # CAPA DE DATOS
+│   ├── models/                # DTOs (MedicamentoModel, VentaModel, ClienteModel)
+│   └── repositories/          # Implementación de AuthService y FirestoreService
+├── domain/                    # CAPA DE NEGOCIO
+│   ├── entities/              # Clases puras de datos (Medicamento, Venta)
+│   └── usecases/              # Lógica: (CalcularDescuentoLunes, SumarPuntos)
+├── presentation/              # CAPA DE INTERFAZ
+│   ├── providers/             # Manejo de estado (Carrito, AuthState)
+│   ├── screens/               # Pantallas (Welcome, Login, Register, Home, POS)
+│   └── widgets/               # Componentes reutilizables (SimiButtons, Inputs)
+└── main.dart                  # Inicialización de Firebase y Rutas
 ```
+🗄️ 3. ESQUEMA DE BASE DE DATOS (FIRESTORE)
 
-Este documento está listo para ser pegado en un README.md de GitHub o entregado
-a una IA de alto nivel para generar el código.
+Módulo A: Catálogo y Stock
 
-🏥 SimiApp Pro: Especificación Técnica y Roadmap de Desarrollo
+1.  medicamentos:
+      - id (String), nombre (String), compuesto (String), precio (Double), stock
+        (Int), stock_min (Int), requiereReceta (Bool).
+2.  souvenirs:
+      - id (String), nombre (String), precio (Double), stock (Int), img_url
+        (String).
 
-Sistema de Gestión Integral para Franquicias de Farmacias Similares
+Módulo B: Transacciones
 
-Este documento detalla la arquitectura, el modelo de datos y el flujo de trabajo
-para construir una aplicación de nivel empresarial utilizando Flutter y
-Firebase.
+3.  ventas:
+      - folio (String), fecha (Timestamp), total (Double), metodo_pago (String),
+        items (List), cliente_id (Ref), empleado_id (Ref). Lógica: Al vender, se
+        debe restar automáticamente el stock de la tabla de medicamentos.
 
-🎨 1. Manual de Identidad Visual (UI/UX)
+Módulo C: Personal y Clientes
 
-Para garantizar el reconocimiento de marca, la aplicación debe adherirse
-estrictamente a la siguiente paleta:
+4.  empleados:
+      - uid (Auth), nombre (String), rol (admin/vendedor/doctor), sucursal_id
+        (Ref).
+5.  clientes:
+      - id (Telefono), nombre (String), simipuntos (Int), correo (String).
+6.  proveedores:
+      - id (RFC), empresa (String), contacto (String), telefono (String).
 
-| Elemento                | Hex Code  | Uso en la Interfaz                                                         |
-| :---------------------- | :-------- | :------------------------------------------------------------------------- |
-| **Verde Institucional** | `#009640` | Color primario, AppBars, botones de "Finalizar Venta", estados activos.    |
-| **Azul Simi**           | `#00468C` | Color secundario, iconos de categorías médicas, botones de "Ver Detalles". |
-| **Amarillo Similandia** | `#FFD100` | Acento, banners de "Lunes de Descuento", badges de stock bajo, alertas.    |
-| **Blanco Clínico**      | `#FFFFFF` | Fondos de tarjetas, diálogos y superficies limpias.                        |
-| **Gris Neutro**         | `#F8F9FA` | Fondo de la aplicación para reducir la fatiga visual.                      |
-| **Rojo Alerta**         | `#D32F2F` | Errores críticos, eliminación de registros, caducidad vencida.             |
+Módulo D: Servicios Médicos
 
-Principios de Diseño:
+7.  consultas:
+      - id (String), paciente_id (Ref), doctor_id (Ref), diagnostico (String),
+        costo (Double).
 
-  - Material 3: Uso de componentes modernos con elevaciones sutiles.
-  - Tipografía: GoogleFonts.montserrat() para títulos y GoogleFonts.roboto()
-    para cuerpos de texto.
-  - Micro-interacciones: Animaciones suaves al agregar productos al carrito.
+🛠️ 4. PASOS DE IMPLEMENTACIÓN (ROADMAP)
 
-📂 2. Arquitectura de Software (Estructura de Carpetas)
+Paso 1: Configuración de Firebase
 
-Se implementa Clean Architecture para separar las preocupaciones y facilitar el
-testing unitario.
+  - Crear proyecto en Firebase Console.
+  - Descargar google-services.json para Android.
+  - Configurar el archivo web/index.html con las claves de la App Web para que
+    Chrome no se vea blanco.
 
+Paso 2: Autenticación Completa
 
+  - Implementar Login con Email y Contraseña.
+  - Implementar Registro de nuevos usuarios.
+  - Implementar Acceso con Google (requiere configurar SHA-1 en la consola).
+  - Implementar Recuperación de contraseña vía email.
 
-🗄️ 3. Arquitectura de Datos (Cloud Firestore)
+Paso 3: Lógica de "Lunes de Simi"
 
-Estructura de colecciones diseñada para consultas rápidas y consistencia de
-datos.
+  - Programar un UseCase que detecte mediante la librería intl si el día actual
+    es DateTime.monday.
+  - Si es verdadero, aplicar un descuento del 25% a todos los medicamentos en el
+    carrito.
 
-A. Colección: medicamentos
+Paso 4: Programa de Fidelización (Simipuntos)
 
-| Campo              | Tipo      | Índice | Descripción                        |
-| :----------------- | :-------- | :----- | :--------------------------------- |
-| `id`               | String    | PK     | UUID generado automáticamente      |
-| `codigo_barras`    | String    | Unique | EAN-13 del producto                |
-| `nombre_comercial` | String    | Search | Nombre visible al cliente          |
-| `nombre_generico`  | String    | Search | Compuesto activo (Ej: Paracetamol) |
-| `precio_venta`     | Double    | \-     | Precio actual (MXN)                |
-| `stock_actual`     | Int       | \-     | Cantidad en almacén                |
-| `stock_minimo`     | Int       | \-     | Gatillo para alerta de resurtido   |
-| `requiere_receta`  | Bool      | \-     | Restricción legal de venta         |
-| `fecha_caducidad`  | Timestamp | Index  | Para control de mermas             |
+  - Configurar que por cada $10 MXN de compra, el sistema actualice el campo
+    simipuntos del cliente en un +1.
 
-B. Colección: ventas (Estructura Maestro-Detalle)
+Paso 5: Dashboard e Inventario
 
-| Campo         | Tipo        | Descripción                                   |
-| :------------ | :---------- | :-------------------------------------------- |
-| `id`          | String      | Folio de venta único                          |
-| `fecha`       | Timestamp   | Fecha y hora del servidor                     |
-| `items`       | List<Map>   | `[{prod_id, cant, precio_unit, subtotal}]`    |
-| `total`       | Double      | Monto final después de descuentos e impuestos |
-| `metodo_pago` | String      | `Efectivo`, `Tarjeta`, `Transferencia`        |
-| `cliente_id`  | DocumentRef | Relación con la colección de Clientes         |
-| `vendedor_id` | DocumentRef | Relación con la colección de Empleados        |
+  - Crear el menú principal con botones tipo Grid (Cuadrícula).
+  - Crear el sistema de "Punto de Venta" (POS) que descuente stock en tiempo
+    real usando transacciones de Firestore.
 
-C. Colección: clientes (Fidelización)
+📦 5. DEPENDENCIAS (PUBSPEC.YAML)
 
-| Campo               | Tipo      | Descripción                               |
-| :------------------ | :-------- | :---------------------------------------- |
-| `telefono`          | String    | ID principal para búsqueda en caja        |
-| `nombre`            | String    | Nombre del beneficiario                   |
-| `simipuntos`        | Int       | Acumulación de lealtad (1 pto x cada $10) |
-| `historial_compras` | List<Ref> | Referencias a sus últimas 10 ventas       |
+1.  firebase_core: ^2.24.2
+2.  cloud_firestore: ^4.14.0
+3.  firebase_auth: ^4.16.0
+4.  google_sign_in: ^6.2.1
+5.  provider: ^6.1.1
+6.  google_fonts: ^6.1.0
+7.  intl: ^0.18.1
+8.  uuid: ^4.2.2
 
-📦 4. Stack Tecnológico (Dependencias)
+🚩 REGLA DE ORO PARA EL DESARROLLO (main.dart)
 
-Añadir estas líneas al archivo pubspec.yaml:
+Para evitar el error [core/no-app], la aplicación debe inicializarse en el main
+pasando las opciones de Firebase Web explícitamente:
 
-dependencies:
+await Firebase.initializeApp(
+  options: const FirebaseOptions(
+    apiKey: "TU_API_KEY",
+    authDomain: "TU_PROYECTO.firebaseapp.com",
+    projectId: "TU_PROYECTO",
+    storageBucket: "TU_PROYECTO.firebasestorage.app",
+    messagingSenderId: "TU_ID",
+    appId: "TU_APP_ID",
+  ),
+);
 
+¿Qué sigue ahora? Con este prompt, ya tienes el control total del proyecto. ¿Te
+gustaría que comenzáramos a desarrollar la Pantalla de Inventario de
+Medicamentos para que puedas empezar a agregar productos a tu base de datos?
 
-🗃️ ESQUEMA DE BASE DE DATOS (COLECCIONES FIRESTORE):
-Firestore es NoSQL. Usa referencias documentales (`DocumentReference`) o strings de ID para relaciones. Genera las siguientes tablas en formato Markdown. Para cada colección, especifica: Campo, Tipo, PK/Índice, Relación, Restricción/Nota.
+Aquí tienes el desglose técnico y detallado de las 8 tablas (colecciones) que
+requiere tu proyecto de Farmacias Similares. Esta estructura está diseñada para
+funcionar perfectamente en Cloud Firestore (NoSQL) y permitirte escalar el
+trabajo de forma profesional.
 
-| Colección | Campo | Tipo | PK/Índice | Relación | Restricción / Nota |
-|---|---|---|---|---|---|
-| `empleados` | `uid` | String | PK | - | Vinculado a Firebase Auth |
-| `empleados` | `nombre` | String | Índice texto | - | Requerido |
-| `empleados` | `email` | String | Índice único | - | Formato email válido |
-| `empleados` | `rol` | String | Índice | - | `admin`, `farmacia`, `cajero` |
-| `empleados` | `telefono` | String | - | - | Máscara +52 |
-| `empleados` | `activo` | Bool | Índice | - | `false` bloquea acceso |
-| `empleados` | `created_at` | Timestamp | - | - | Automático |
-| `clientes` | `id` | String | PK | - | UUID v4 |
-| `clientes` | `nombre` | String | Índice texto | - | Requerido |
-| `clientes` | `email` | String | - | - | Opcional |
-| `clientes` | `telefono` | String | Índice | - | Búsqueda principal |
-| `clientes` | `rfc` | String | - | - | 12-13 caracteres |
-| `clientes` | `direccion` | String | - | - | Texto libre |
-| `clientes` | `puntos` | Int | - | - | Programa fidelidad |
-| `clientes` | `activo` | Bool | Índice | - | `true` por defecto |
-| `clientes` | `created_at` | Timestamp | - | - | Automático |
-| `proveedores` | `id` | String | PK | - | UUID v4 |
-| `proveedores` | `razon_social` | String | Índice | - | Requerido |
-| `proveedores` | `contacto` | String | - | - | Persona física |
-| `proveedores` | `email` | String | - | - | Validado |
-| `proveedores` | `telefono` | String | Índice | - | Requerido |
-| `proveedores` | `rfc` | String | Índice único | - | Fiscal |
-| `proveedores` | `activo` | Bool | Índice | - | Control de compras |
-| `medicamentos` | `id` | String | PK | - | UUID v4 |
-| `medicamentos` | `nombre` | String | Índice texto | - | Comercial/Genérico |
-| `medicamentos` | `codigo_barras` | String | Índice único | - | EAN13/UPC |
-| `medicamentos` | `categoria_id` | String | Índice | 1:N `categorias` | Clasificación |
-| `medicamentos` | `precio_compra` | Double | - | - | >= 0 |
-| `medicamentos` | `precio_venta` | Double | - | - | > precio_compra |
-| `medicamentos` | `stock` | Int | - | - | >= 0 |
-| `medicamentos` | `stock_min` | Int | - | - | Alerta automática |
-| `medicamentos` | `proveedor_id` | String | Índice | 1:N `proveedores` | Origen |
-| `medicamentos` | `requiere_receta` | Bool | - | - | Control sanitario |
-| `medicamentos` | `vencimiento` | Timestamp | Índice | - | Alerta si < 30 días |
-| `medicamentos` | `activo` | Bool | Índice | - | Baja lógica |
-| `productos_souvenirs` | `id` | String | PK | - | UUID v4 |
-| `productos_souvenirs` | `nombre` | String | Índice texto | - | Requerido |
-| `productos_souvenirs` | `codigo_barras` | String | Índice único | - | EAN13/UPC |
-| `productos_souvenirs` | `categoria_id` | String | Índice | 1:N `categorias` | Clasificación |
-| `productos_souvenirs` | `precio_compra` | Double | - | - | >= 0 |
-| `productos_souvenirs` | `precio_venta` | Double | - | - | > precio_compra |
-| `productos_souvenirs` | `stock` | Int | - | - | >= 0 |
-| `productos_souvenirs` | `stock_min` | Int | - | - | Alerta automática |
-| `productos_souvenirs` | `proveedor_id` | String | Índice | 1:N `proveedores` | Origen |
-| `productos_souvenirs` | `activo` | Bool | Índice | - | Baja lógica |
-| `ventas` | `id` | String | PK | - | UUID v4 o folio autoincremental |
-| `ventas` | `cliente_id` | String | Índice | 1:N `clientes` | Nullable para venta anónima |
-| `ventas` | `empleado_id` | String | Índice | 1:N `empleados` | Cajero/Farmacéutico |
-| `ventas` | `fecha` | Timestamp | Índice | - | Zona horaria local |
-| `ventas` | `subtotal` | Double | - | - | Suma items |
-| `ventas` | `iva` | Double | - | - | 16% fijo |
-| `ventas` | `total` | Double | - | - | subtotal + iva |
-| `ventas` | `metodo_pago` | String | Índice | - | `efectivo`, `tarjeta`, `transferencia` |
-| `ventas` | `estado` | String | Índice | - | `completada`, `cancelada`, `pendiente` |
-| `ventas` | `items` | Array<Map> | - | - | `{item_id, tipo, cantidad, precio_unit, subtotal}` |
-| `ventas` | `created_at` | Timestamp | - | - | Inmutable |
-| `inventario_movimientos` | `id` | String | PK | - | UUID v4 |
-| `inventario_movimientos` | `producto_id` | String | Índice | - | Medicamento o Souvenir |
-| `inventario_movimientos` | `tipo` | String | Índice | - | `entrada`, `salida`, `ajuste`, `merma` |
-| `inventario_movimientos` | `cantidad` | Int | - | - | Positivo o negativo |
-| `inventario_movimientos` | `motivo` | String | - | - | Texto libre |
-| `inventario_movimientos` | `empleado_id` | String | Índice | 1:N `empleados` | Responsable |
-| `inventario_movimientos` | `fecha` | Timestamp | Índice | - | Timestamp |
-| `alertas_stock` | `id` | String | PK | - | UUID v4 |
-| `alertas_stock` | `producto_id` | String | Índice | - | Referencia |
-| `alertas_stock` | `tipo_producto` | String | Índice | - | `medicamento` o `souvenir` |
-| `alertas_stock` | `umbral` | Int | - | - | `stock_min` original |
-| `alertas_stock` | `stock_actual` | Int | - | - | Captura al momento |
-| `alertas_stock` | `leido` | Bool | Índice | - | `false` por defecto |
-| `alertas_stock` | `created_at` | Timestamp | - | - | Automático |
-| `categorias` | `id` | String | PK | - | UUID v4 |
-| `categorias` | `nombre` | String | Índice único | - | Ej: `Analgésicos`, `Juguetes` |
-| `categorias` | `tipo` | String | Índice | - | `medicamento` o `souvenir` |
-| `categorias` | `activo` | Bool | Índice | - | `true` |
-| `configuracion_tienda` | `id` | String | PK (único doc) | - | `global_config` |
-| `configuracion_tienda` | `nombre_sucursal` | String | - | - | Identificador |
-| `configuracion_tienda` | `rfc` | String | - | - | Fiscal |
-| `configuracion_tienda` | `iva_porcentaje` | Double | - | - | `0.16` |
-| `configuracion_tienda` | `logo_url` | String | - | - | Firebase Storage |
-| `configuracion_tienda` | `updated_at` | Timestamp | - | - | Última modificación |
+🗄️ Diccionario de Datos: SimiApp Pro
 
-🎨 IDENTIDAD VISUAL & UI (FARMACIAS SIMILARES):
-- Primary: `#009640` (Verde institucional)
-- Secondary/Acento: `#FFD100` (Amarillo/Dorado)
-- Background: `#F8F9FA` | Surface: `#FFFFFF`
-- Text/OnPrimary: `#1A1A1A` | Error: `#E53935` | Success: `#4CAF50`
-- Implementar Material 3: `ColorScheme.fromSeed(seedColor: Color(0xFF009640))`
-- Overrides: AppBar verde sólido, botones primarios verdes, secundarios amarillos, cards con `elevation: 2`, badges de alerta en rojo/amarillo, inputs con `border: OutlineInputBorder`
-- Tipografía: `GoogleFonts.inter()` (fallback `Roboto`), jerarquía clara H1→Caption
-- Responsive: `LayoutBuilder` + `MediaQuery`, breakpoints: mobile ≤600, tablet 601-840, desktop ≥841
-- Componentes obligatorios: `PrimaryButton`, `SecondaryButton`, `CustomTextField`, `DataTablePaginated`, `StatusBadge`, `EmptyStateWidget`, `LoadingOverlay`, `SnackbarManager`
+1. Colección: medicamentos (Inventario Farmacéutico)
 
-📦 DEPENDENCIAS (`pubspec.yaml`):
-Entrega el bloque exacto. Usa versiones compatibles con Flutter 3.16+.
-```yaml
-dependencies:
-  flutter:
-    sdk: flutter
-  firebase_core: ^2.24.0
-  cloud_firestore: ^4.14.0
-  firebase_auth: ^4.16.0
-  firebase_storage: ^11.6.0
-  provider: ^6.1.1
-  go_router: ^13.2.0
-  flutter_form_builder: ^9.1.1
-  form_builder_validators: ^9.1.0
-  intl: ^0.19.0
-  mobile_scanner: ^4.0.0
-  pdf: ^3.10.8
-  printing: ^5.12.0
-  uuid: ^4.2.2
-  cached_network_image: ^3.3.1
-  shared_preferences: ^2.2.2
-  flutter_svg: ^2.0.9
-  google_fonts: ^6.1.0
+Controla el catálogo principal de medicinas.
 
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  flutter_lints: ^3.0.1
-  mockito: ^5.4.4
-  build_runner: ^2.4.8
+| Campo               | Tipo de Dato | Relación / Validación | Descripción                                            |
+| :------------------ | :----------- | :-------------------- | :----------------------------------------------------- |
+| `id`                | String       | PK (Código de barras) | Identificador único del producto.                      |
+| `nombre_comercial`  | String       | \-                    | Nombre de marca (ej: Simiparatol).                     |
+| `nombre_generico`   | String       | \-                    | Sustancia activa (ej: Paracetamol).                    |
+| `categoria`         | String       | \-                    | Analgésicos, Antibióticos, etc.                        |
+| `precio`            | Double       | Min: 0.0              | Precio base de venta.                                  |
+| `stock`             | Int          | Min: 0                | Cantidad física en anaquel.                            |
+| `stock_minimo`      | Int          | \-                    | Si `stock` \< `stock_minimo`, mostrar alerta amarilla. |
+| `requiere_receta`   | Boolean      | \-                    | Bloquea la venta si el cliente no trae receta.         |
+| `fecha_vencimiento` | Timestamp    | \-                    | Para alertas de caducidad.                             |
 
-  # Firebase Core
-  firebase_core: ^2.24.2
-  cloud_firestore: ^4.14.0
-  firebase_auth: ^4.16.0
-  firebase_storage: ^11.6.0
+2. Colección: productos_souvenirs (Similandia)
 
-  # State Management & Architecture
-  provider: ^6.1.1
-  get_it: ^7.6.4 # Service Locator para Clean Architecture
+Gestión de peluches y mercancía del Dr. Simi.
 
-  # UI & UX
-  google_fonts: ^6.1.0
-  font_awesome_flutter: ^10.6.0
-  flutter_spinkit: ^5.2.0 # Loaders profesionales
-  
-  # Utils
-  intl: ^0.18.1 # Formateo de moneda y fechas
-  uuid: ^4.2.2 # Generación de folios
-  cached_network_image: ^3.3.0 # Imágenes de souvenirs
-```
+| Campo          | Tipo de Dato | Relación / Validación | Descripción                              |
+| :------------- | :----------- | :-------------------- | :--------------------------------------- |
+| `id`           | String       | PK                    | SKU del souvenir.                        |
+| `nombre`       | String       | \-                    | Ej: Dr. Simi Astronauta.                 |
+| `precio`       | Double       | \-                    | Precio fijo.                             |
+| `stock`        | Int          | \-                    | Existencias.                             |
+| `img_url`      | String       | \-                    | Link a la imagen en Firebase Storage.    |
+| `es_coleccion` | Boolean      | \-                    | Flag para productos de edición limitada. |
 
-🛠️ 5. Guía de Desarrollo Paso a Paso (Roadmap Extenso)
+3. Colección: clientes (Fidelización)
 
-Fase 1: Configuración del Ecosistema (Backend)
+Base de datos para el programa de Simipuntos.
 
-1.  Firebase Setup: Crear proyecto en Firebase Console. Vincular Apps Android e
-    iOS.
-2.  Auth Setup: Configurar autenticación por Email/Password. Crear manualmente
-    el primer usuario admin@simiapp.com.
-3.  Firestore Security Rules: Implementar reglas que solo permitan escribir
-    ventas a empleados autenticados.
-4.  Storage: Crear carpetas para productos/ y empleados/ para almacenar
-    fotografías.
+| Campo            | Tipo de Dato | Relación / Validación | Descripción                               |
+| :--------------- | :----------- | :-------------------- | :---------------------------------------- |
+| `telefono`       | String       | PK                    | Usado como ID único del cliente.          |
+| `nombre`         | String       | \-                    | Nombre completo.                          |
+| `correo`         | String       | Formato Email         | Para envío de promociones.                |
+| `simipuntos`     | Int          | \-                    | Acumulados (1 punto por cada $10.00 MXN). |
+| `fecha_registro` | Timestamp    | \-                    | Fecha de alta en el sistema.              |
 
-Fase 2: Capa de Dominio y Modelado (La Lógica)
+4. Colección: empleados (Personal)
 
-1.  Entidades: Crear clases Medicamento y Venta en la capa de dominio.
-2.  Mappers: Escribir la lógica para convertir un QuerySnapshot de Firebase en
-    un objeto de Dart usable.
-3.  Regla de Negocio "Lunes de Simi": Crear un UseCase que obtenga el día de la
-    semana y, si es lunes, aplique un -25% al subtotal de los productos
-    seleccionados.
+Gestión de accesos y roles.
 
-Fase 3: Integración de Datos (Repositories)
+| Campo    | Tipo de Dato | Relación / Validación         | Descripción                                        |
+| :------- | :----------- | :---------------------------- | :------------------------------------------------- |
+| `uid`    | String       | PK (Firebase Auth)            | Vinculado al correo del login.                     |
+| `nombre` | String       | \-                            | Nombre del trabajador.                             |
+| `rol`    | String       | `admin`, `vendedor`, `doctor` | Define qué pantallas puede ver.                    |
+| `correo` | String       | \-                            | Email corporativo.                                 |
+| `activo` | Boolean      | \-                            | Permite bloquear el acceso sin borrar al empleado. |
 
-1.  Implementación de Firestore: Crear el FirestoreInventoryRepository para leer
-    productos en tiempo real mediante Streams.
-2.  Transacciones de Venta: Implementar runTransaction en Firestore. Al
-    registrar una venta:
-      - Se crea el documento en /ventas.
-      - Se actualiza el campo stock_actual en /medicamentos.
-      - Se suman los simipuntos al cliente en /clientes.
-      - Todo esto ocurre en una sola operación atómica para evitar errores de
-        inventario.
+5. Colección: ventas (Maestro-Detalle)
 
-Fase 4: Desarrollo de la Interfaz de Usuario (UI)
+Registro histórico de cada transacción.
 
-1.  Pantalla POS (Punto de Venta):
-      - Buscador de productos por nombre o escaneo de código de barras.
-      - Lista lateral del carrito de compras.
-      - Botón de "Cobrar" que abre un modal con el desglose de IVA y puntos
-        ganados.
-2.  Módulo de Inventario:
-      - Vista de tabla con indicadores de color: Rojo (Agotado), Amarillo (Stock
-        Bajo), Verde (Suficiente).
-      - Formulario para agregar nuevos medicamentos con validación de campos
-        obligatorios.
-3.  Sección de Souvenirs: Galería de imágenes estilo e-commerce para los
-    peluches y productos Similandia.
+| Campo         | Tipo de Dato | Relación / Validación | Descripción                                   |
+| :------------ | :----------- | :-------------------- | :-------------------------------------------- |
+| `folio`       | String       | PK (Auto-gen)         | ID de la transacción.                         |
+| `fecha`       | Timestamp    | \-                    | Fecha y hora exacta.                          |
+| `cliente_id`  | DocumentRef  | `clientes`            | Referencia al cliente que compró.             |
+| `vendedor_id` | DocumentRef  | `empleados`           | Quién realizó la venta.                       |
+| `total`       | Double       | \-                    | Monto final cobrado.                          |
+| `metodo_pago` | String       | `efectivo`, `tarjeta` | Método utilizado.                             |
+| `items`       | List<Map>    | \-                    | Lista de `{prod_id, cant, precio, subtotal}`. |
 
-Fase 5: Testing y Pulido
+6. Colección: proveedores (Logística)
 
-1.  Pruebas Unitarias: Validar que el cálculo del IVA y los descuentos de los
-    lunes funcionen correctamente.
-2.  Modo Offline: Configurar la persistencia de Firestore para que los
-    vendedores puedan seguir operando si se cae el internet de la sucursal.
-3.  Generación de Tickets: Implementar una función para generar un PDF básico
-    que sirva como comprobante de compra.
+Directorio de laboratorios y distribuidores.
 
-🚩 Instrucción Final para la IA Generadora:
+| Campo      | Tipo de Dato | Relación / Validación | Descripción                    |
+| :--------- | :----------- | :-------------------- | :----------------------------- |
+| `id`       | String       | PK (RFC)              | Registro fiscal del proveedor. |
+| `empresa`  | String       | \-                    | Nombre (Bayer, Genomma, etc.). |
+| `contacto` | String       | \-                    | Nombre del agente de ventas.   |
+| `telefono` | String       | \-                    | Teléfono de pedidos.           |
+| `correo`   | String       | \-                    | Email para órdenes de compra.  |
 
-"Utilizando esta especificación técnica detallada, genera el código del
-VentaRepositoryImpl con soporte para transacciones atómicas de stock y la
-pantalla de POSScreen que implemente la paleta de colores Verde y Azul
-institucional, incluyendo la lógica del 'Lunes de Descuento'."
+7. Colección: consultas (Servicios Médicos)
 
+Registro del consultorio adjunto.
+
+| Campo          | Tipo de Dato | Relación / Validación | Descripción                          |
+| :------------- | :----------- | :-------------------- | :----------------------------------- |
+| `id`           | String       | PK                    | Folio médico.                        |
+| `paciente_id`  | DocumentRef  | `clientes`            | Referencia al paciente atendido.     |
+| `doctor_id`    | DocumentRef  | `empleados`           | El médico que atendió (Rol: Doctor). |
+| `diagnostico`  | String       | \-                    | Resumen clínico.                     |
+| `prescripcion` | List<String> | \-                    | Lista de medicamentos recetados.     |
+| `costo`        | Double       | \-                    | Costo de la consulta ($50.00 MXN).   |
+
+8. Colección: sucursales (Ubicación)
+
+Control de la unidad de negocio.
+
+| Campo        | Tipo de Dato | Relación / Validación | Descripción                               |
+| :----------- | :----------- | :-------------------- | :---------------------------------------- |
+| `id`         | String       | PK                    | Clave de sucursal.                        |
+| `nombre`     | String       | \-                    | Nombre de la zona (ej: Sucursal Reforma). |
+| `direccion`  | String       | \-                    | Dirección completa.                       |
+| `gerente_id` | DocumentRef  | `empleados`           | Quién es el responsable de la tienda.     |
+
+⚙️ Reglas de Negocio (Lógica de las Tablas)
+
+1.  Lunes de Simi: Cada vez que se genere un registro en la tabla ventas, el
+    sistema debe revisar si la fecha es Lunes. Si lo es, el campo total debe
+    reducirse un 25% automáticamente para los productos tipo medicamento.
+2.  Sincronización de Stock: Al registrar una venta, un proceso (Transaction)
+    debe buscar el id en la tabla medicamentos y restar la cantidad del campo
+    stock.
+3.  Generación de Puntos: Por cada $10.00 del campo total en ventas, se debe
+    sumar +1 al campo simipuntos en el documento del cliente correspondiente.
+
+¿Con estas tablas ya te sientes listo para que Entigravity te ayude a programar
+la pantalla de "Punto de Venta" (Caja)?
